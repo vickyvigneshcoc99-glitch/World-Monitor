@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to World Monitor are documented here.
+All notable changes to RetailSaathi are documented here.
 
 ## [2.5.10] - 2026-02-26
 
