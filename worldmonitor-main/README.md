@@ -1578,3 +1578,10 @@ GNU Affero General Public License v3.0 (AGPL-3.0) — see [LICENSE](LICENSE) for
    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=vickyvigneshcoc99-glitch/World-Monitor&type=Date&type=Date" />
  </picture>
 </a>
+
+---
+
+<p align="center">
+  <sub>RetailSaathi is a specialized retail analytics development of the global intelligence engine. Found a bug? Open an issue on GitHub.</sub>
+</p>
+
