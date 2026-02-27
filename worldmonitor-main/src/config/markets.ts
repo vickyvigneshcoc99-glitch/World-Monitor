@@ -22,6 +22,9 @@ export const COMMODITIES: Commodity[] = [
   { symbol: 'NG=F', name: 'Natural Gas', display: 'NATGAS' },
   { symbol: 'SI=F', name: 'Silver', display: 'SILVER' },
   { symbol: 'HG=F', name: 'Copper', display: 'COPPER' },
+  { symbol: 'KC=F', name: 'Coffee', display: 'COFFEE' },
+  { symbol: 'SB=F', name: 'Sugar', display: 'SUGAR' },
+  { symbol: 'ZW=F', name: 'Wheat', display: 'WHEAT' },
 ];
 
 export const MARKET_SYMBOLS: MarketSymbol[] = [
@@ -53,6 +56,11 @@ export const MARKET_SYMBOLS: MarketSymbol[] = [
   { symbol: 'HD', name: 'Home Depot', display: 'HD' },
   { symbol: 'NFLX', name: 'Netflix', display: 'NFLX' },
   { symbol: 'BAC', name: 'BofA', display: 'BAC' },
+  { symbol: 'TGT', name: 'Target', display: 'TGT' },
+  { symbol: 'LOW', name: 'Lowes', display: 'LOW' },
+  { symbol: 'SHOP', name: 'Shopify', display: 'SHOP' },
+  { symbol: 'BABA', name: 'Alibaba', display: 'BABA' },
+  { symbol: 'EBAY', name: 'eBay', display: 'EBAY' },
 ];
 
 export const CRYPTO_IDS = ['bitcoin', 'ethereum', 'solana', 'ripple'] as const;

@@ -433,6 +433,75 @@ const HAPPY_PANELS: Record<string, PanelConfig> = {
   giving: { name: 'Global Giving', enabled: true, priority: 1 },
 };
 
+// ============================================
+// RETAIL VARIANT (Commerce/Supply Chain)
+// ============================================
+const RETAIL_PANELS: Record<string, PanelConfig> = {
+  map: { name: 'Retail Hubs Map', enabled: true, priority: 1 },
+  'live-news': { name: 'Commerce Headlines', enabled: true, priority: 1 },
+  insights: { name: 'Retail AI Insights', enabled: true, priority: 1 },
+  markets: { name: 'Consumer Markets', enabled: true, priority: 1 },
+  economic: { name: 'Economic Indicators', enabled: true, priority: 1 },
+  'supply-chain': { name: 'Supply Chain Tracker', enabled: true, priority: 1 },
+  'trade-policy': { name: 'Trade & Tariff Policy', enabled: true, priority: 1 },
+  commodities: { name: 'Consumer Goods & Raw Materials', enabled: true, priority: 1 },
+  'macro-signals': { name: 'Market Radar', enabled: true, priority: 1 },
+  layoffs: { name: 'Retail Industry Layoffs', enabled: true, priority: 2 },
+  monitors: { name: 'My Retail Monitors', enabled: true, priority: 2 },
+  polymarket: { name: 'Market Predictions', enabled: true, priority: 2 },
+};
+
+const RETAIL_MAP_LAYERS: MapLayers = {
+  conflicts: false,
+  bases: false,
+  cables: true,
+  pipelines: false,
+  hotspots: false,
+  ais: true,
+  nuclear: false,
+  irradiators: false,
+  sanctions: true,
+  weather: true,
+  economic: true,
+  waterways: true,
+  outages: true,
+  cyberThreats: false,
+  datacenters: true,
+  protests: false,
+  flights: true,
+  military: false,
+  natural: true,
+  spaceports: false,
+  minerals: false,
+  fires: false,
+  ucdpEvents: false,
+  displacement: false,
+  climate: false,
+  startupHubs: false,
+  cloudRegions: false,
+  accelerators: false,
+  techHQs: true,
+  techEvents: false,
+  stockExchanges: true,
+  financialCenters: true,
+  centralBanks: true,
+  commodityHubs: true,
+  gulfInvestments: false,
+  positiveEvents: false,
+  kindness: false,
+  happiness: false,
+  speciesRecovery: false,
+  renewableInstallations: false,
+  tradeRoutes: true,
+};
+
+const RETAIL_MOBILE_MAP_LAYERS: MapLayers = {
+  ...RETAIL_MAP_LAYERS,
+  cables: false,
+  ais: false,
+  flights: false,
+};
+
 const HAPPY_MAP_LAYERS: MapLayers = {
   conflicts: false,
   bases: false,
@@ -532,9 +601,9 @@ const HAPPY_MOBILE_MAP_LAYERS: MapLayers = {
 // ============================================
 // VARIANT-AWARE EXPORTS
 // ============================================
-export const DEFAULT_PANELS = SITE_VARIANT === 'happy' ? HAPPY_PANELS : SITE_VARIANT === 'tech' ? TECH_PANELS : SITE_VARIANT === 'finance' ? FINANCE_PANELS : FULL_PANELS;
-export const DEFAULT_MAP_LAYERS = SITE_VARIANT === 'happy' ? HAPPY_MAP_LAYERS : SITE_VARIANT === 'tech' ? TECH_MAP_LAYERS : SITE_VARIANT === 'finance' ? FINANCE_MAP_LAYERS : FULL_MAP_LAYERS;
-export const MOBILE_DEFAULT_MAP_LAYERS = SITE_VARIANT === 'happy' ? HAPPY_MOBILE_MAP_LAYERS : SITE_VARIANT === 'tech' ? TECH_MOBILE_MAP_LAYERS : SITE_VARIANT === 'finance' ? FINANCE_MOBILE_MAP_LAYERS : FULL_MOBILE_MAP_LAYERS;
+export const DEFAULT_PANELS = SITE_VARIANT === 'happy' ? HAPPY_PANELS : SITE_VARIANT === 'tech' ? TECH_PANELS : SITE_VARIANT === 'finance' ? FINANCE_PANELS : SITE_VARIANT === 'retail' ? RETAIL_PANELS : FULL_PANELS;
+export const DEFAULT_MAP_LAYERS = SITE_VARIANT === 'happy' ? HAPPY_MAP_LAYERS : SITE_VARIANT === 'tech' ? TECH_MAP_LAYERS : SITE_VARIANT === 'finance' ? FINANCE_MAP_LAYERS : SITE_VARIANT === 'retail' ? RETAIL_MAP_LAYERS : FULL_MAP_LAYERS;
+export const MOBILE_DEFAULT_MAP_LAYERS = SITE_VARIANT === 'happy' ? HAPPY_MOBILE_MAP_LAYERS : SITE_VARIANT === 'tech' ? TECH_MOBILE_MAP_LAYERS : SITE_VARIANT === 'finance' ? FINANCE_MOBILE_MAP_LAYERS : SITE_VARIANT === 'retail' ? RETAIL_MOBILE_MAP_LAYERS : FULL_MOBILE_MAP_LAYERS;
 
 /** Maps map-layer toggle keys to their data-freshness source IDs (single source of truth). */
 export const LAYER_TO_SOURCE: Partial<Record<keyof MapLayers, DataSourceId[]>> = {
@@ -648,6 +717,11 @@ export const PANEL_CATEGORY_MAP: Record<string, { labelKey: string; panelKeys: s
     labelKey: 'header.panelCatGulfMena',
     panelKeys: ['gcc-investments', 'gccNews', 'monitors'],
     variants: ['finance'],
+  },
+  retailAnalytics: {
+    labelKey: 'header.panelCatRetailAnalytics',
+    panelKeys: ['markets', 'economic', 'supply-chain', 'trade-policy', 'commodities', 'macro-signals', 'layoffs', 'insights'],
+    variants: ['retail'],
   },
 };
 

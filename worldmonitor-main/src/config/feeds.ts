@@ -1020,14 +1020,43 @@ const HAPPY_FEEDS: Record<string, Feed[]> = {
   ],
 };
 
+const RETAIL_FEEDS: Record<string, Feed[]> = {
+  markets: [
+    { name: 'CNBC Retail', url: rss('https://www.cnbc.com/id/10000116/device/rss/rss.html') },
+    { name: 'Retail Dive', url: rss('https://www.retaildive.com/feeds/news/') },
+    { name: 'Modern Retail', url: rss('https://www.modernretail.co/feed/') },
+    { name: 'Wall Street Journal Retail', url: rss('https://news.google.com/rss/search?q=site:wsj.com+retail+when:3d&hl=en-US&gl=US&ceid=US:en') },
+    { name: 'Yahoo Consumer News', url: rss('https://news.google.com/rss/search?q=site:finance.yahoo.com+consumer+retail+when:1d&hl=en-US&gl=US&ceid=US:en') },
+    { name: 'AdAge Retail', url: rss('https://news.google.com/rss/search?q=site:adage.com+retail+brand+when:7d&hl=en-US&gl=US&ceid=US:en') },
+  ],
+  economic: [
+    { name: 'Retail Sales Data', url: rss('https://news.google.com/rss/search?q="retail+sales"+OR+"consumer+spending"+OR+CPI+OR+inflation+when:2d&hl=en-US&gl=US&ceid=US:en') },
+    { name: 'Consumer Sentiment', url: rss('https://news.google.com/rss/search?q="consumer+confidence"+OR+"consumer+sentiment"+when:7d&hl=en-US&gl=US&ceid=US:en') },
+    { name: 'Purchasing Power', url: rss('https://news.google.com/rss/search?q="real+wages"+OR+"disposable+income"+OR+"cost+of+living"+when:7d&hl=en-US&gl=US&ceid=US:en') },
+  ],
+  'supply-chain': [
+    { name: 'Supply Chain Brain', url: rss('https://www.supplychainbrain.com/rss/articles') },
+    { name: 'Logistics Management', url: rss('https://www.logisticsmgmt.com/rss') },
+    { name: 'FreightWaves', url: rss('https://www.freightwaves.com/feed') },
+    { name: 'Shipping Watch', url: rss('https://news.google.com/rss/search?q=("container+shipping"+OR+"port+congestion"+OR+"logistics")+when:2d&hl=en-US&gl=US&ceid=US:en') },
+  ],
+  'trade-policy': [
+    { name: 'WTO News', url: rss('https://www.wto.org/english/news_e/news_e.rss') },
+    { name: 'Trade Tariffs', url: rss('https://news.google.com/rss/search?q=(tariff+OR+customs+OR+"trade+agreement")+retail+when:7d&hl=en-US&gl=US&ceid=US:en') },
+    { name: 'Global Supply Policy', url: rss('https://news.google.com/rss/search?q=("forced+labor"+OR+ESG+OR+"supply+chain+compliance")+retail+when:14d&hl=en-US&gl=US&ceid=US:en') },
+  ],
+};
+
 // Variant-aware exports
 export const FEEDS = SITE_VARIANT === 'tech'
   ? TECH_FEEDS
   : SITE_VARIANT === 'finance'
     ? FINANCE_FEEDS
-    : SITE_VARIANT === 'happy'
-      ? HAPPY_FEEDS
-      : FULL_FEEDS;
+    : SITE_VARIANT === 'retail'
+      ? RETAIL_FEEDS
+      : SITE_VARIANT === 'happy'
+        ? HAPPY_FEEDS
+        : FULL_FEEDS;
 
 export const SOURCE_REGION_MAP: Record<string, { labelKey: string; feedKeys: string[] }> = {
   // Full (geopolitical) variant regions
@@ -1060,6 +1089,7 @@ export const SOURCE_REGION_MAP: Record<string, { labelKey: string; feedKeys: str
   dealsCorpFin: { labelKey: 'header.sourceRegionDeals', feedKeys: ['institutional', 'derivatives'] },
   finRegulation: { labelKey: 'header.sourceRegionFinRegulation', feedKeys: ['regulation'] },
   gulfMena: { labelKey: 'header.sourceRegionGulfMena', feedKeys: ['gccNews'] },
+  retailRegion: { labelKey: 'header.panelCatRetailAnalytics', feedKeys: ['markets', 'economic', 'supply-chain', 'trade-policy'] },
 };
 
 export const INTEL_SOURCES: Feed[] = [

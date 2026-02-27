@@ -79,6 +79,7 @@
     "world": "WORLD",
     "tech": "TECH",
     "live": "LIVE",
+    "retail": "RETAIL",
     "search": "Search",
     "settings": "SETTINGS",
     "sources": "SOURCES",
@@ -138,7 +139,8 @@
     "panelCatCentralBanks": "Central Banks & Econ",
     "panelCatDeals": "Deals & Institutional",
     "panelCatGulfMena": "Gulf & MENA",
-    "panelCatTradePolicy": "Trade Policy"
+    "panelCatTradePolicy": "Trade Policy",
+    "panelCatRetailAnalytics": "Retail Analytics"
   },
   "panels": {
     "liveNews": "Live News",

@@ -40,6 +40,7 @@ export const TOPIC_KEYWORDS = [
   'iran', 'israel', 'ukraine', 'russia', 'china', 'taiwan', 'oil', 'crypto',
   'fed', 'interest', 'inflation', 'recession', 'war', 'sanctions', 'tariff',
   'ai', 'tech', 'layoff', 'trump', 'biden', 'election',
+  'retail', 'consumer', 'spending', 'ecommerce', 'walmart', 'amazon', 'target', 'supply',
 ];
 
 export const SUPPRESSED_TRENDING_TERMS = new Set<string>([
