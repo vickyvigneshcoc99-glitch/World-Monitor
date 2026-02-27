@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./worldmonitor-main/worldmonitor-header.png" alt="RetailSaathi — World Monitor" width="100%">
+  <img src="./worldmonitor-header.png" alt="RetailSaathi — World Monitor" width="100%">
 </p>
 
 <h1 align="center">🌐 RetailSaathi — World Monitor</h1>
