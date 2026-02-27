@@ -60,7 +60,7 @@ const FULL_MAP_LAYERS: MapLayers = {
   hotspots: true,
   ais: false,
   nuclear: true,
-  irradiators: false,
+  irradiators: true,
   sanctions: true,
   weather: true,
   economic: true,
@@ -72,7 +72,7 @@ const FULL_MAP_LAYERS: MapLayers = {
   flights: false,
   military: true,
   natural: true,
-  spaceports: false,
+  spaceports: true,
   minerals: false,
   fires: false,
   // Data source layers

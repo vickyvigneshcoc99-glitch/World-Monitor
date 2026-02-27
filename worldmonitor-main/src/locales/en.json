@@ -236,6 +236,7 @@
         "outage": "Outage",
         "nuclear": "Nuclear Site",
         "irradiator": "Irradiator",
+        "spaceport": "Spaceport",
         "techcompany": "Tech Company",
         "ailab": "AI Lab",
         "startup": "Startup",
@@ -779,7 +780,9 @@
         "elevated": "Elevated",
         "monitoring": "Monitoring",
         "base": "Base",
-        "nuclear": "Nuclear"
+        "nuclear": "Nuclear",
+        "gammaIrradiator": "Gamma Irradiator",
+        "spaceport": "Spaceport"
       },
       "layerGuide": "Layer Guide",
       "layersTitle": "Layers",
@@ -2019,7 +2022,6 @@
     "close": "Close",
     "currentVariant": "(current)",
     "retry": "Retry",
-    "retrying": "Retrying...",
     "refresh": "Refresh"
   }
 }
