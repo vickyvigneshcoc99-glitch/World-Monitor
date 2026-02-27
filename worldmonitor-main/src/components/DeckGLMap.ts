@@ -450,8 +450,8 @@ export class DeckGLMap {
       layers: this.buildLayers(),
       getTooltip: (info: PickingInfo) => this.getTooltip(info),
       onClick: (info: PickingInfo) => this.handleClick(info),
-      pickingRadius: 10,
-      useDevicePixels: window.devicePixelRatio > 2 ? 2 : true,
+      pickingRadius: 15, // Increased for easier clicking and lower math overhead
+      useDevicePixels: window.devicePixelRatio > 1.5 ? 1.5 : true, // Cap resolution to 1.5x for performance
       onError: (error: Error) => console.warn('[DeckGLMap] Render error (non-fatal):', error.message),
     });
 
@@ -474,7 +474,7 @@ export class DeckGLMap {
       this.moveTimeoutId = setTimeout(() => {
         this.lastSCZoom = -1;
         this.rafUpdateLayers();
-      }, 100);
+      }, 150);
     });
 
     this.maplibreMap.on('zoom', () => {
@@ -482,7 +482,7 @@ export class DeckGLMap {
       this.moveTimeoutId = setTimeout(() => {
         this.lastSCZoom = -1;
         this.rafUpdateLayers();
-      }, 100);
+      }, 150);
     });
 
     this.maplibreMap.on('zoomend', () => {
