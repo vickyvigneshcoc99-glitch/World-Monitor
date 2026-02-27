@@ -14,6 +14,7 @@ import type {
 
 import { CHROME_UA } from '../../../_shared/constants';
 import { cachedFetchJson } from '../../../_shared/redis';
+import { fetchWithMirrorFallback } from '../../../_shared/mirror';
 
 const REDIS_CACHE_KEY = 'economic:energy:v1';
 const REDIS_CACHE_TTL = 3600; // 1 hr — weekly EIA data
@@ -109,14 +110,20 @@ export async function getEnergyPrices(
   _ctx: ServerContext,
   req: GetEnergyPricesRequest,
 ): Promise<GetEnergyPricesResponse> {
-  try {
-    const cacheKey = `${REDIS_CACHE_KEY}:${[...req.commodities].sort().join(',') || 'all'}`;
-    const result = await cachedFetchJson<GetEnergyPricesResponse>(cacheKey, REDIS_CACHE_TTL, async () => {
-      const prices = await fetchEnergyPrices(req.commodities);
-      return prices.length > 0 ? { prices } : null;
-    });
-    return result || { prices: [] };
-  } catch {
-    return { prices: [] };
-  }
+  return fetchWithMirrorFallback(
+    'economic/v1/get-energy-prices',
+    req,
+    (async () => {
+      try {
+        const cacheKey = `${REDIS_CACHE_KEY}:${[...req.commodities].sort().join(',') || 'all'}`;
+        const result = await cachedFetchJson<GetEnergyPricesResponse>(cacheKey, REDIS_CACHE_TTL, async () => {
+          const prices = await fetchEnergyPrices(req.commodities);
+          return prices.length > 0 ? { prices } : { prices: [] };
+        });
+        return result || { prices: [] };
+      } catch {
+        return { prices: [] };
+      }
+    })()
+  );
 }

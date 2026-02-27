@@ -20,6 +20,7 @@ import {
   extractAlignedPriceVolume,
 } from './_shared';
 import { cachedFetchJson } from '../../../_shared/redis';
+import { fetchWithMirrorFallback } from '../../../_shared/mirror';
 
 const REDIS_CACHE_KEY = 'economic:macro-signals:v1';
 const REDIS_CACHE_TTL = 300; // 5 min — matches in-memory TTL
@@ -238,35 +239,41 @@ async function computeMacroSignals(): Promise<GetMacroSignalsResponse> {
 
 export async function getMacroSignals(
   _ctx: ServerContext,
-  _req: GetMacroSignalsRequest,
+  req: GetMacroSignalsRequest,
 ): Promise<GetMacroSignalsResponse> {
-  const now = Date.now();
-  if (macroSignalsCached && now - macroSignalsCacheTimestamp < MACRO_CACHE_TTL * 1000) {
-    return macroSignalsCached;
-  }
+  return fetchWithMirrorFallback(
+    'economic/v1/get-macro-signals',
+    req,
+    (async () => {
+      const now = Date.now();
+      if (macroSignalsCached && now - macroSignalsCacheTimestamp < MACRO_CACHE_TTL * 1000) {
+        return macroSignalsCached;
+      }
 
-  try {
-    // Redis shared cache (cross-instance) with in-flight dedup via cachedFetchJson
-    const result = await cachedFetchJson<GetMacroSignalsResponse>(REDIS_CACHE_KEY, REDIS_CACHE_TTL, async () => {
-      const computed = await computeMacroSignals();
-      return (!computed.unavailable && computed.totalCount > 0) ? computed : null;
-    });
+      try {
+        // Redis shared cache (cross-instance) with in-flight dedup via cachedFetchJson
+        const result = await cachedFetchJson<GetMacroSignalsResponse>(REDIS_CACHE_KEY, REDIS_CACHE_TTL, async () => {
+          const computed = await computeMacroSignals();
+          return (!computed.unavailable && computed.totalCount > 0) ? computed : buildFallbackResult();
+        });
 
-    if (result && !result.unavailable && result.totalCount > 0) {
-      macroSignalsCached = result;
-      macroSignalsCacheTimestamp = now;
-      return result;
-    }
+        if (result && !result.unavailable && result.totalCount > 0) {
+          macroSignalsCached = result;
+          macroSignalsCacheTimestamp = now;
+          return result;
+        }
 
-    // cachedFetchJson returned null: all data unavailable, serve stale or fallback
-    const fallback = macroSignalsCached || buildFallbackResult();
-    macroSignalsCached = fallback;
-    macroSignalsCacheTimestamp = now;
-    return fallback;
-  } catch {
-    const fallback = macroSignalsCached || buildFallbackResult();
-    macroSignalsCached = fallback;
-    macroSignalsCacheTimestamp = now;
-    return fallback;
-  }
+        // cachedFetchJson returned null: all data unavailable, serve stale or fallback
+        const fallback = macroSignalsCached || buildFallbackResult();
+        macroSignalsCached = fallback;
+        macroSignalsCacheTimestamp = now;
+        return fallback;
+      } catch {
+        const fallback = macroSignalsCached || buildFallbackResult();
+        macroSignalsCached = fallback;
+        macroSignalsCacheTimestamp = now;
+        return fallback;
+      }
+    })()
+  );
 }

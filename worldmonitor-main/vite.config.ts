@@ -625,32 +625,40 @@ function youtubeLivePlugin(): Plugin {
           const channelHandle = channel.startsWith('@') ? channel : `@${channel}`;
           const liveUrl = `https://www.youtube.com/${channelHandle}/live`;
 
-          const ytRes = await fetch(liveUrl, {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            },
-            redirect: 'follow',
-          });
+          const fetchVideoId = async () => {
+            const ytRes = await fetch(liveUrl, {
+              headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+              },
+              redirect: 'follow',
+            });
 
-          if (!ytRes.ok) {
-            res.setHeader('Content-Type', 'application/json');
-            res.setHeader('Cache-Control', 'public, max-age=300');
-            res.end(JSON.stringify({ videoId: null, channel }));
-            return;
-          }
+            if (!ytRes.ok) return null;
+            const html = await ytRes.text();
+            const detailsIdx = html.indexOf('"videoDetails"');
+            if (detailsIdx !== -1) {
+              const block = html.substring(detailsIdx, detailsIdx + 5000);
+              const vidMatch = block.match(/"videoId":"([a-zA-Z0-9_-]{11})"/);
+              const liveMatch = block.match(/"isLive"\s*:\s*true/);
+              if (vidMatch && liveMatch) return vidMatch[1];
+            }
+            return null;
+          };
 
-          const html = await ytRes.text();
+          let videoId = await fetchVideoId();
 
-          // Scope both fields to the same videoDetails block so we don't
-          // combine a videoId from one object with isLive from another.
-          let videoId: string | null = null;
-          const detailsIdx = html.indexOf('"videoDetails"');
-          if (detailsIdx !== -1) {
-            const block = html.substring(detailsIdx, detailsIdx + 5000);
-            const vidMatch = block.match(/"videoId":"([a-zA-Z0-9_-]{11})"/);
-            const liveMatch = block.match(/"isLive"\s*:\s*true/);
-            if (vidMatch && liveMatch) {
-              videoId = vidMatch[1];
+          // Fallback to production mirror if local scraper failed
+          if (!videoId) {
+            try {
+              const mirrorRes = await fetch(`https://worldmonitor.app/api/youtube/live?channel=${channel}`, {
+                headers: { 'Referer': 'https://worldmonitor.app' }
+              });
+              if (mirrorRes.ok) {
+                const mirrorData = await mirrorRes.json();
+                if (mirrorData.videoId) videoId = mirrorData.videoId;
+              }
+            } catch (mirrorErr) {
+              console.warn(`[YouTube Mirror] Fallback failed:`, mirrorErr);
             }
           }
 

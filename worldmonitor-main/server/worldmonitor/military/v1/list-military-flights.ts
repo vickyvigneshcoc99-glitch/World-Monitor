@@ -10,6 +10,7 @@ import type {
 import { isMilitaryCallsign, isMilitaryHex, detectAircraftType, UPSTREAM_TIMEOUT_MS } from './_shared';
 import { CHROME_UA } from '../../../_shared/constants';
 import { cachedFetchJson } from '../../../_shared/redis';
+import { fetchWithMirrorFallback } from '../../../_shared/mirror';
 
 const REDIS_CACHE_KEY = 'military:flights:v1';
 const REDIS_CACHE_TTL = 600; // 10 min — reduce upstream API pressure
@@ -73,99 +74,104 @@ export async function listMilitaryFlights(
   _ctx: ServerContext,
   req: ListMilitaryFlightsRequest,
 ): Promise<ListMilitaryFlightsResponse> {
-  try {
-    const bb = req.boundingBox;
-    if (!bb?.southWest || !bb?.northEast) return { flights: [], clusters: [], pagination: undefined };
-    const requestBounds = normalizeBounds(bb);
+  return fetchWithMirrorFallback(
+    'military/v1/list-military-flights',
+    req,
+    (async () => {
+      try {
+        const bb = req.boundingBox;
+        if (!bb?.southWest || !bb?.northEast) return { flights: [], clusters: [], pagination: undefined };
+        const requestBounds = normalizeBounds(bb);
 
-    // Quantize bbox to a 1° grid so nearby map views share cache entries.
-    // Precise coordinates caused near-zero hit rate since every pan/zoom created a unique key.
-    const quantizedBB = [
-      quantize(bb.southWest.latitude, BBOX_GRID_STEP),
-      quantize(bb.southWest.longitude, BBOX_GRID_STEP),
-      quantize(bb.northEast.latitude, BBOX_GRID_STEP),
-      quantize(bb.northEast.longitude, BBOX_GRID_STEP),
-    ].join(':');
-    const cacheKey = `${REDIS_CACHE_KEY}:${quantizedBB}:${req.operator || ''}:${req.aircraftType || ''}:${req.pagination?.pageSize || 0}`;
+        // Quantize bbox to a 1° grid so nearby map views share cache entries.
+        const quantizedBB = [
+          quantize(bb.southWest.latitude, BBOX_GRID_STEP),
+          quantize(bb.southWest.longitude, BBOX_GRID_STEP),
+          quantize(bb.northEast.latitude, BBOX_GRID_STEP),
+          quantize(bb.northEast.longitude, BBOX_GRID_STEP),
+        ].join(':');
+        const cacheKey = `${REDIS_CACHE_KEY}:${quantizedBB}:${req.operator || ''}:${req.aircraftType || ''}:${req.pagination?.pageSize || 0}`;
 
-    const fullResult = await cachedFetchJson<ListMilitaryFlightsResponse>(
-      cacheKey,
-      REDIS_CACHE_TTL,
-      async () => {
-        const isSidecar = (process.env.LOCAL_API_MODE || '').includes('sidecar');
-        const baseUrl = isSidecar
-          ? 'https://opensky-network.org/api/states/all'
-          : process.env.WS_RELAY_URL ? process.env.WS_RELAY_URL + '/opensky' : null;
+        const fullResult = await cachedFetchJson<ListMilitaryFlightsResponse>(
+          cacheKey,
+          REDIS_CACHE_TTL,
+          async () => {
+            const isSidecar = (process.env.LOCAL_API_MODE || '').includes('sidecar');
+            const baseUrl = isSidecar
+              ? 'https://opensky-network.org/api/states/all'
+              : process.env.WS_RELAY_URL ? process.env.WS_RELAY_URL + '/opensky' : null;
 
-        if (!baseUrl) return null;
+            if (!baseUrl) return { flights: [], clusters: [], pagination: undefined };
 
-        const fetchBB = {
-          lamin: quantize(bb.southWest.latitude, BBOX_GRID_STEP) - BBOX_GRID_STEP / 2,
-          lamax: quantize(bb.northEast.latitude, BBOX_GRID_STEP) + BBOX_GRID_STEP / 2,
-          lomin: quantize(bb.southWest.longitude, BBOX_GRID_STEP) - BBOX_GRID_STEP / 2,
-          lomax: quantize(bb.northEast.longitude, BBOX_GRID_STEP) + BBOX_GRID_STEP / 2,
-        };
-        const params = new URLSearchParams();
-        params.set('lamin', String(fetchBB.lamin));
-        params.set('lamax', String(fetchBB.lamax));
-        params.set('lomin', String(fetchBB.lomin));
-        params.set('lomax', String(fetchBB.lomax));
+            const fetchBB = {
+              lamin: quantize(bb.southWest!.latitude, BBOX_GRID_STEP) - BBOX_GRID_STEP / 2,
+              lamax: quantize(bb.northEast!.latitude, BBOX_GRID_STEP) + BBOX_GRID_STEP / 2,
+              lomin: quantize(bb.southWest!.longitude, BBOX_GRID_STEP) - BBOX_GRID_STEP / 2,
+              lomax: quantize(bb.northEast!.longitude, BBOX_GRID_STEP) + BBOX_GRID_STEP / 2,
+            };
+            const params = new URLSearchParams();
+            params.set('lamin', String(fetchBB.lamin));
+            params.set('lamax', String(fetchBB.lamax));
+            params.set('lomin', String(fetchBB.lomin));
+            params.set('lomax', String(fetchBB.lomax));
 
-        const url = `${baseUrl!}${params.toString() ? '?' + params.toString() : ''}`;
-        const resp = await fetch(url, {
-          headers: getRelayRequestHeaders(),
-          signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
-        });
+            const url = `${baseUrl!}${params.toString() ? '?' + params.toString() : ''}`;
+            const resp = await fetch(url, {
+              headers: getRelayRequestHeaders(),
+              signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+            });
 
-        if (!resp.ok) return null;
+            if (!resp.ok) return { flights: [], clusters: [], pagination: undefined };
 
-        const data = (await resp.json()) as { states?: Array<[string, string, ...unknown[]]> };
-        if (!data.states) return null;
+            const data = (await resp.json()) as { states?: Array<[string, string, ...unknown[]]> };
+            if (!data.states) return { flights: [], clusters: [], pagination: undefined };
 
-        const flights: ListMilitaryFlightsResponse['flights'] = [];
-        for (const state of data.states) {
-          const [icao24, callsign, , , , lon, lat, altitude, onGround, velocity, heading] = state as [
-            string, string, unknown, unknown, unknown, number | null, number | null, number | null, boolean, number | null, number | null,
-          ];
-          if (lat == null || lon == null || onGround) continue;
-          if (!isMilitaryCallsign(callsign) && !isMilitaryHex(icao24)) continue;
+            const flights: ListMilitaryFlightsResponse['flights'] = [];
+            for (const state of data.states) {
+              const [icao24, callsign, , , , lon, lat, altitude, onGround, velocity, heading] = state as [
+                string, string, unknown, unknown, unknown, number | null, number | null, number | null, boolean, number | null, number | null,
+              ];
+              if (lat == null || lon == null || onGround) continue;
+              if (!isMilitaryCallsign(callsign) && !isMilitaryHex(icao24)) continue;
 
-          const aircraftType = detectAircraftType(callsign);
+              const aircraftType = detectAircraftType(callsign);
 
-          flights.push({
-            id: icao24,
-            callsign: (callsign || '').trim(),
-            hexCode: icao24,
-            registration: '',
-            aircraftType: (AIRCRAFT_TYPE_MAP[aircraftType] || 'MILITARY_AIRCRAFT_TYPE_UNKNOWN') as MilitaryAircraftType,
-            aircraftModel: '',
-            operator: 'MILITARY_OPERATOR_OTHER',
-            operatorCountry: '',
-            location: { latitude: lat, longitude: lon },
-            altitude: altitude ?? 0,
-            heading: heading ?? 0,
-            speed: (velocity as number) ?? 0,
-            verticalRate: 0,
-            onGround: false,
-            squawk: '',
-            origin: '',
-            destination: '',
-            lastSeenAt: Date.now(),
-            firstSeenAt: 0,
-            confidence: 'MILITARY_CONFIDENCE_LOW',
-            isInteresting: false,
-            note: '',
-            enrichment: undefined,
-          });
-        }
+              flights.push({
+                id: icao24,
+                callsign: (callsign || '').trim(),
+                hexCode: icao24,
+                registration: '',
+                aircraftType: (AIRCRAFT_TYPE_MAP[aircraftType] || 'MILITARY_AIRCRAFT_TYPE_UNKNOWN') as MilitaryAircraftType,
+                aircraftModel: '',
+                operator: 'MILITARY_OPERATOR_OTHER',
+                operatorCountry: '',
+                location: { latitude: lat, longitude: lon },
+                altitude: altitude ?? 0,
+                heading: heading ?? 0,
+                speed: (velocity as number) ?? 0,
+                verticalRate: 0,
+                onGround: false,
+                squawk: '',
+                origin: '',
+                destination: '',
+                lastSeenAt: Date.now(),
+                firstSeenAt: 0,
+                confidence: 'MILITARY_CONFIDENCE_LOW',
+                isInteresting: false,
+                note: '',
+                enrichment: undefined,
+              });
+            }
 
-        return flights.length > 0 ? { flights, clusters: [], pagination: undefined } : null;
-      },
-    );
+            return flights.length > 0 ? { flights, clusters: [], pagination: undefined } : { flights: [], clusters: [], pagination: undefined };
+          },
+        );
 
-    if (!fullResult) return { flights: [], clusters: [], pagination: undefined };
-    return { ...fullResult, flights: filterFlightsToBounds(fullResult.flights, requestBounds) };
-  } catch {
-    return { flights: [], clusters: [], pagination: undefined };
-  }
+        if (!fullResult) return { flights: [], clusters: [], pagination: undefined };
+        return { ...fullResult, flights: filterFlightsToBounds(fullResult.flights, requestBounds) };
+      } catch {
+        return { flights: [], clusters: [], pagination: undefined };
+      }
+    })()
+  );
 }

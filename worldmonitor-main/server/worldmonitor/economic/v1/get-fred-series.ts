@@ -14,6 +14,7 @@ import type {
 } from '../../../../src/generated/server/worldmonitor/economic/v1/service_server';
 
 import { cachedFetchJson } from '../../../_shared/redis';
+import { fetchWithMirrorFallback } from '../../../_shared/mirror';
 
 const FRED_API_BASE = 'https://api.stlouisfed.org/fred';
 const REDIS_CACHE_KEY = 'economic:fred:v1';
@@ -95,14 +96,20 @@ export async function getFredSeries(
   _ctx: ServerContext,
   req: GetFredSeriesRequest,
 ): Promise<GetFredSeriesResponse> {
-  try {
-    const cacheKey = `${REDIS_CACHE_KEY}:${req.seriesId}:${req.limit || 0}`;
-    const result = await cachedFetchJson<GetFredSeriesResponse>(cacheKey, REDIS_CACHE_TTL, async () => {
-      const series = await fetchFredSeries(req);
-      return series ? { series } : null;
-    });
-    return result || { series: undefined };
-  } catch {
-    return { series: undefined };
-  }
+  return fetchWithMirrorFallback(
+    'economic/v1/get-fred-series',
+    req,
+    (async () => {
+      try {
+        const cacheKey = `${REDIS_CACHE_KEY}:${req.seriesId}:${req.limit || 0}`;
+        const result = await cachedFetchJson<GetFredSeriesResponse>(cacheKey, REDIS_CACHE_TTL, async () => {
+          const series = await fetchFredSeries(req);
+          return series ? { series } : { series: undefined };
+        });
+        return result || { series: undefined };
+      } catch {
+        return { series: undefined };
+      }
+    })()
+  );
 }
