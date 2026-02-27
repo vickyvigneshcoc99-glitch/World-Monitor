@@ -436,7 +436,7 @@ function sebufApiPlugin(): Plugin {
           if (req.method === 'OPTIONS') {
             res.statusCode = 204;
             for (const [key, value] of Object.entries(corsHeaders)) {
-              res.setHeader(key, value);
+              res.setHeader(key, value as string);
             }
             res.end();
             return;
@@ -447,7 +447,7 @@ function sebufApiPlugin(): Plugin {
             res.statusCode = 403;
             res.setHeader('Content-Type', 'application/json');
             for (const [key, value] of Object.entries(corsHeaders)) {
-              res.setHeader(key, value);
+              res.setHeader(key, value as string);
             }
             res.end(JSON.stringify({ error: 'Origin not allowed' }));
             return;
@@ -459,7 +459,7 @@ function sebufApiPlugin(): Plugin {
             res.statusCode = 404;
             res.setHeader('Content-Type', 'application/json');
             for (const [key, value] of Object.entries(corsHeaders)) {
-              res.setHeader(key, value);
+              res.setHeader(key, value as string);
             }
             res.end(JSON.stringify({ error: 'Not found' }));
             return;
@@ -474,7 +474,7 @@ function sebufApiPlugin(): Plugin {
             res.setHeader(key, value);
           });
           for (const [key, value] of Object.entries(corsHeaders)) {
-            res.setHeader(key, value);
+            res.setHeader(key, value as string);
           }
           res.end(await response.text());
         } catch (err) {

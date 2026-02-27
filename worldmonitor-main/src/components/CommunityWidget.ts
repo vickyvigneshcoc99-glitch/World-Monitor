@@ -1,7 +1,7 @@
 import { t } from '@/services/i18n';
 
 const DISMISSED_KEY = 'wm-community-dismissed';
-const DISCUSSION_URL = 'https://github.com/vickyvigneshcoc99-glitch/World-Monitor/discussions';
+const DISCUSSION_URL = 'https://github.com/vickyvigneshcoc99-glitch/World-Monitor/issues';
 
 export function mountCommunityWidget(): void {
   if (localStorage.getItem(DISMISSED_KEY) === 'true') return;
