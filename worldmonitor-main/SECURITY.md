@@ -16,7 +16,7 @@ If you discover a security vulnerability in World Monitor, please report it resp
 
 1. **GitHub Private Vulnerability Reporting**: Use [GitHub's private vulnerability reporting](https://github.com/vickyvigneshcoc99-glitch/World-Monitor/security/advisories/new) to submit your report directly through the repository.
 
-2. **Direct Contact**: Alternatively, reach out to the repository owner [@koala73](https://github.com/koala73) directly through GitHub.
+2. **Direct Contact**: Alternatively, reach out to the repository owner [@vickyvigneshcoc99-glitch](https://github.com/vickyvigneshcoc99-glitch) directly through GitHub.
 
 ### What to Include
 

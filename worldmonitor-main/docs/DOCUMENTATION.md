@@ -1,4 +1,4 @@
-# World Monitor v2
+# RetailSaathi v2
 
 AI-powered real-time global intelligence dashboard aggregating news, markets, geopolitical data, and infrastructure monitoring into a unified situation awareness interface.
 
@@ -9,22 +9,22 @@ AI-powered real-time global intelligence dashboard aggregating news, markets, ge
 ![D3.js](https://img.shields.io/badge/D3.js-F9A03C?style=flat&logo=d3.js&logoColor=white)
 ![Version](https://img.shields.io/badge/version-2.5.1-blue)
 
-![World Monitor Dashboard](../new-world-monitor.png)
+![RetailSaathi Dashboard](../new-world-monitor.png)
 
 ## Platform Variants
 
-World Monitor runs two specialized variants from a single codebase, each optimized for different monitoring needs:
+RetailSaathi runs two specialized variants from a single codebase, each optimized for different monitoring needs:
 
 | Variant | URL | Focus |
 |---------|-----|-------|
-| **🌍 World Monitor** | [worldmonitor.app](https://worldmonitor.app) | Geopolitical intelligence, military tracking, conflict monitoring, infrastructure security |
+| **🌍 RetailSaathi** | [worldmonitor.app](https://worldmonitor.app) | Geopolitical intelligence, military tracking, conflict monitoring, infrastructure security |
 | **💻 Tech Monitor** | [tech.worldmonitor.app](https://tech.worldmonitor.app) | Technology sector intelligence, AI/startup ecosystems, cloud infrastructure, tech events |
 
 A compact **variant switcher** in the header allows seamless navigation between variants while preserving your map position and panel configuration.
 
 ---
 
-## World Monitor (Geopolitical)
+## RetailSaathi (Geopolitical)
 
 The primary variant focuses on geopolitical intelligence, military tracking, and infrastructure security monitoring.
 
@@ -3291,7 +3291,7 @@ define: {
 }
 
 // App.ts
-const header = `World Monitor v${__APP_VERSION__}`;
+const header = `RetailSaathi v${__APP_VERSION__}`;
 ```
 
 ---
@@ -3678,7 +3678,7 @@ See [ROADMAP.md](../.planning/ROADMAP.md) for detailed planning. Recent intellig
 - ✅ **Build-Time Version Sync** - Header version auto-syncs with package.json
 - ✅ **Tech Monitor Variant** - Dedicated technology sector dashboard with startup ecosystems, cloud regions, and tech events
 - ✅ **Smart Marker Clustering** - Geographic grouping of nearby markers with click-to-expand popups
-- ✅ **Variant Switcher UI** - Compact orbital navigation between World Monitor and Tech Monitor
+- ✅ **Variant Switcher UI** - Compact orbital navigation between RetailSaathi and Tech Monitor
 - ✅ **CII Learning Mode** - 15-minute calibration period with visual progress indicator
 - ✅ **Regional Tech Coverage** - Verified tech HQ data for MENA, Europe, Asia-Pacific hubs
 - ✅ **Service Status Panel** - External service health monitoring (AI providers, cloud platforms)

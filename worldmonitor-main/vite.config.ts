@@ -50,12 +50,12 @@ const VARIANT_META: Record<string, {
   features: string[];
 }> = {
   full: {
-    title: 'World Monitor - Real-Time Global Intelligence Dashboard',
+    title: 'RetailSaathi - Real-Time Global Intelligence Dashboard',
     description: 'Real-time global intelligence dashboard with live news, markets, military tracking, infrastructure monitoring, and geopolitical data. OSINT in one view.',
     keywords: 'global intelligence, geopolitical dashboard, world news, market data, military bases, nuclear facilities, undersea cables, conflict zones, real-time monitoring, situation awareness, OSINT, flight tracking, AIS ships, earthquake monitor, protest tracker, power outages, oil prices, government spending, polymarket predictions',
     url: 'https://worldmonitor.app/',
-    siteName: 'World Monitor',
-    shortName: 'WorldMonitor',
+    siteName: 'RetailSaathi',
+    shortName: 'RetailSaathi',
     subject: 'Real-Time Global Intelligence and Situation Awareness',
     classification: 'Intelligence Dashboard, OSINT Tool, News Aggregator',
     categories: ['news', 'productivity'],
@@ -166,8 +166,8 @@ function htmlVariantPlugin(): Plugin {
         .replace(/<meta name="twitter:url" content=".*?" \/>/, `<meta name="twitter:url" content="${activeMeta.url}" />`)
         .replace(/<meta name="twitter:title" content=".*?" \/>/, `<meta name="twitter:title" content="${activeMeta.title}" />`)
         .replace(/<meta name="twitter:description" content=".*?" \/>/, `<meta name="twitter:description" content="${activeMeta.description}" />`)
-        .replace(/"name": "World Monitor"/, `"name": "${activeMeta.siteName}"`)
-        .replace(/"alternateName": "WorldMonitor"/, `"alternateName": "${activeMeta.siteName.replace(' ', '')}"`)
+        .replace(/"name": "RetailSaathi"/, `"name": "${activeMeta.siteName}"`)
+        .replace(/"alternateName": "RetailSaathi"/, `"alternateName": "${activeMeta.siteName.replace(' ', '')}"`)
         .replace(/"url": "https:\/\/worldmonitor\.app\/"/, `"url": "${activeMeta.url}"`)
         .replace(/"description": "Real-time global intelligence dashboard with live news, markets, military tracking, infrastructure monitoring, and geopolitical data."/, `"description": "${activeMeta.description}"`)
         .replace(/"featureList": \[[\s\S]*?\]/, `"featureList": ${JSON.stringify(activeMeta.features, null, 8).replace(/\n/g, '\n      ')}`);
